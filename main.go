@@ -9,6 +9,11 @@ import (
 
 type Option string
 
+type cliArugment struct {
+	option   Option
+	arugment string
+}
+
 type todo struct {
 	id      int
 	text    string
@@ -24,7 +29,9 @@ const (
 )
 
 func main() {
-	option, value := getOption()
+  args := getArgument()
+  option := args.option;
+  value := args.arugment;
 	file := openFile(FILE_NAME)
 	data := readData(file)
 	todos := parseData(data)
@@ -105,22 +112,35 @@ func openFile(filename string) *os.File {
 	return file
 }
 
-func getOption() (Option, string) {
-	list := flag.String("list", "", "List the Todo List")
+func getArgument() cliArugment {
+	list := flag.Bool("list", true, "List the Todo List")
 	add := flag.String("add", "", "Add Todo to the list")
 	remove := flag.String("remove", "", "Remove Todo from the list")
 	done := flag.String("done", "", "Mark Todo as Done")
 	flag.Parse()
-	if *list != "" {
-		return Option("list"), "0"
+  var args cliArugment;
+	if *list {
+    args = cliArugment{
+      option: LIST,
+      arugment: "",
+    }
 	} else if *add != "" {
-		return Option("add"), *add
+    args = cliArugment{
+      option: ADD,
+      arugment: *add,
+    }
 	} else if *remove != "" {
-		return Option("remove"), *remove
+    args = cliArugment{
+      option: REMOVE,
+      arugment: *remove,
+    }
 	} else if *done != "" {
-		return Option("done"), *done
+    args = cliArugment{
+      option: DONE,
+      arugment: *done,
+    }
 	}
-	return Option(*list), "0"
+	return args
 }
 
 func exit(msg string) {
